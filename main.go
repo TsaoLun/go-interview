@@ -1,23 +1,13 @@
 package main
 
-import (
-	"fmt"
-	"sync"
-	"time"
-)
+import "fmt"
 
-var counter = 0
-var mutex = sync.Mutex{}
-
-func incrementCounter() {
-	counter++
+func fn(m map[int]int) {
+        m = make(map[int]int)
 }
 
 func main() {
-	for range 1000 {
-		go incrementCounter()
-	}
-
-	time.Sleep(time.Second)
-	fmt.Println(counter)
+        var m map[int]int
+        fn(m)
+        fmt.Println(m == nil)
 }

@@ -73,5 +73,23 @@ Starvation mode continues until the waiting queue is empty or the goroutine wait
 
 ### Maps
 
+Go map is composed of many smaller units called "buckets":
+
+```go
+type hmap struct {
+  ...
+  buckets unsafe.Pointer // point to the bucket array.
+  ...
+}
+````
+
+When you assign a map to a variable or pass it to a function, both the variable and the function’s argument are sharing the same map pointer. But maps are pointers to the hmap under the hood, they aren’t reference types.
+> 见 https://dave.cheney.net/2017/04/29/there-is-no-pass-by-reference-in-go
+
+#### Buckets(bucket array)
+
+By hashing key ("hello" -> hash("hello", seed)) to a number, then it takes that number and mods it by the number of buckets.
 
 
+
+### TODO LIST
