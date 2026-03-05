@@ -90,6 +90,9 @@ When you assign a map to a variable or pass it to a function, both the variable 
 
 By hashing key ("hello" -> hash("hello", seed)) to a number, then it takes that number and mods it by the number of buckets.
 
+When the buckets start getting full, the map will trigger a growth, which might double the number of main buckets.There are two strategies for growth:
 
+* One that doubles the size of the buckets (when overloaded 桶溢出 80% capacity).
+* One that keeps the same size but redistributes entries (when there are too many overflow buckets).
 
 ### TODO LIST
