@@ -1,98 +1,103 @@
 # Go Interview Brief
 
+A comprehensive collection of Go (Golang) concepts and examples for interview preparation.
+
+This documentation is organized into individual numbered sections for focused learning and sequential navigation. Each section can be accessed independently, and all sections include simplified navigation links (previous, next, and back to index).
+
+## Table of Contents
+
+- [Array](./docs/01_array.md) - Fixed-length sequences and stack allocation
+- [Mutex and Race Conditions](./docs/02_mutex.md) - Synchronization and concurrency control
+- [Maps](./docs/03_maps.md) - Hash table implementation and behavior
+- [Slices](./docs/04_slices.md) - Dynamic array segments and memory management
+- [Goroutines and Channels](./docs/05_goroutines-channels.md) - Concurrency primitives
+- [Interfaces](./docs/06_interfaces.md) - Polymorphism and type abstraction
+- [Defer, Panic, and Recover](./docs/07_defer-panic-recover.md) - Error handling and flow control
+- [Memory Management and GC](./docs/08_memory-gc.md) - Memory allocation and garbage collection
+- [Concurrency Patterns](./docs/09_concurrency-patterns.md) - Common patterns for concurrent programming
+- [Examples](./docs/10_examples.md) - Practical code examples and demonstrations
+- [References](./docs/11_references.md) - Official documentation and learning resources
+
+## Quick Overview
+
 ### Array
+- Elements length and type are fixed
+- Default stack allocation; escapes to heap when size exceeds `MaxStackVarSize`
+- Go 1.25: `MaxStackVarSize = int64(128 * 1024)` (older versions: `10 * 1024 * 1024`)
 
-元素长度与类型固定，默认栈上分配，当大小超过 MaxStackVarSize 时会逃逸到堆上
-> 可以通过指令分析 `go build -gcflags="-m" .` Go 1.25 版本 MaxStackVarSize = int64(128 * 1024) 旧版本为 10 * 1024 * 1024
-
-### Mutex
-
-#### race condition
-multiple goroutines try to access and change shared data at the same time without proper synchronization.
-```go
-var counter = 0
-
-func incrementCounter() {
-	counter++
-}
-
-func main() {
-	for range 1000 {
-		go incrementCounter()
-	}
-
-	time.Sleep(time.Second)
-	fmt.Println(counter) // Output: 9xx
-}
-```
-
-To avoid race condition, we can use mutex to synchronize access to shared data.
-
-```go
-package sync
-
-type Mutex struct {
-	state int32
-	sema  uint32 // 信号量标识符 key -> 全局哈希表对应队列
-}
-```
-
-接下来分析 state 字段(int32)
-* Locked(bit_0): If it’s set to 1, the mutex is locked and no other goroutine can grab it.
-* Woken(bit_1): Set to 1 if any goroutine has been woken up and is trying to acquire the mutex.
-* Starving(bit_2): The starvation mode.
-* Waiter(bit_3-31): How many goroutines are waiting to acquire the mutex.
-
-```go
-func (m *Mutex) Lock() {
-	// Fast path: grab unlocked mutex.
-	// Compare And Swap operation fail means the state locked
-	if atomic.CompareAndSwapInt32(&m.state, 0, 1) {
-		if race.Enabled {
-			race.Acquire(unsafe.Pointer(m))
-		}
-		return
-	}
-	// Slow path (spining to avoid the overhead of a sleep-wake cycle)
-	// Spinning, repeatedly checking the mutex state and then go to sleep(sema->queue)
-	m.lockSlow()
-}
-```
-#### Starvation Mode
-
-Spinning doesn’t work in Starvation mode.
-
-In normal mode, new goroutines can quickly try to grab the mutex, while the queued goroutine is still waking up (lose the race to the new contenders and get put back at the front of the queue.)
-
-Starvation mode kicks in if a goroutine fails to acquire the lock for more than 1 millisecond. New goroutines don’t even try to acquire mutex and just join the end of the waiting queue.
-
-Starvation mode continues until the waiting queue is empty or the goroutine wait for less than one millisecond.
-
-
-
+### Mutex and Race Conditions
+- Race conditions occur when multiple goroutines access shared data without synchronization
+- Use `sync.Mutex` or `sync.RWMutex` for synchronization
+- Mutex implements fast path (atomic CAS) and slow path (spinning/queueing)
 
 ### Maps
+- Go maps are hash tables composed of buckets
+- Maps are not reference types; they are pointers to underlying `hmap` structure
+- Growth strategies: double bucket count or redistribute entries
 
-Go map is composed of many smaller units called "buckets":
+### Slices
+- Slices are descriptors of contiguous array segments
+- Contain pointer to array, length, and capacity
+- Slicing does not copy data; changes affect shared underlying array
 
-```go
-type hmap struct {
-  ...
-  buckets unsafe.Pointer // point to the bucket array.
-  ...
-}
-````
+### Goroutines and Channels
+- Goroutines are lightweight threads managed by Go runtime
+- Channels provide communication and synchronization between goroutines
+- Select statement for non-blocking communication
 
-When you assign a map to a variable or pass it to a function, both the variable and the function’s argument are sharing the same map pointer. But maps are pointers to the hmap under the hood, they aren’t reference types.
-> 见 https://dave.cheney.net/2017/04/29/there-is-no-pass-by-reference-in-go
+### Interfaces
+- Define method signatures; types implement interfaces implicitly
+- Empty interface (`interface{}` / `any`) holds any type
+- Interface values consist of type and value components
 
-#### Buckets(bucket array)
+### Defer, Panic, and Recover
+- `defer` schedules function calls for execution when surrounding function returns
+- `panic` stops normal execution and begins panicking
+- `recover` regains control of a panicking goroutine (only in deferred functions)
 
-By hashing key ("hello" -> hash("hello", seed)) to a number, then it takes that number and mods it by the number of buckets.
+### Memory Management and GC
+- Concurrent, tri-color mark-and-sweep garbage collector
+- Stack allocation for small, short-lived objects
+- Heap allocation for objects that escape or are large
+- Escape analysis determines stack vs heap allocation
 
-When the buckets start getting full, the map will trigger a growth, which might double the number of main buckets.There are two strategies for growth:
+### Concurrency Patterns
+- Worker pool for distributing work among goroutines
+- Pipeline pattern for processing data through stages
 
-* One that doubles the size of the buckets (when overloaded 桶溢出 80% capacity).
-* One that keeps the same size but redistributes entries (when there are too many overflow buckets).
+### Examples
+- Example code in `main.go` demonstrates maps are not reference types
+- Shows reassigning map inside function doesn't affect caller's variable
+- Output: `true` indicating the map remains `nil`
 
-### TODO LIST
+### References
+- Official Go language specification and documentation
+- Go by Example tutorials and effective Go practices
+- Memory model and concurrency patterns references
+- Technical articles about maps, mutex, and Go internals
+
+## Navigation
+
+Each section file includes:
+- **Back to README** link to return to this index
+- **Previous** and **Next** links for sequential reading
+- **Numbered sequence**: Files are numbered 01-11 for logical progression (01_array.md, 02_mutex.md, etc.)
+- Consistent structure with clear headings and bilingual explanations
+
+To navigate from any section back to this index, click the "Back to README" link at the bottom of each section page.
+
+## Getting Started
+
+Explore the concepts by clicking on any topic in the table of contents. The documentation includes both English and Chinese explanations for key concepts.
+
+To run the example code:
+```bash
+go run main.go
+```
+
+## Contributing
+
+This is a living collection of Go concepts. Contributions and corrections are welcome. Each section is maintained as a separate Markdown file in the `docs/` directory.
+
+---
+*Documentation split into sections for focused learning.*
