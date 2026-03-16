@@ -7,6 +7,7 @@ go run main.go
 ```
 
 Output:
+
 ```
 true
 ```
@@ -15,4 +16,4 @@ This demonstrates that maps are not reference types; reassigning the map inside 
 
 ## Navigation
 
-← [Previous: Concurrency Patterns](./09_concurrency-patterns.md) | [Back to README](../README.md) | **Next:** [References](./11_references.md) →
+← [Previous: sync.WaitGroup](./09_sync_waitgroup.md) | [Back to README](../README.md) | **Next:** [References](./11_references.md) →

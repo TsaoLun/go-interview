@@ -6,9 +6,10 @@
 - **Escape analysis** determines whether a variable can be allocated on the stack. (**逃逸分析** 确定变量是否可以在栈上分配)
 
 **GC Tuning (GC调优):**
+
 - `GOGC` environment variable sets the garbage collection target percentage (default 100). (`GOGC` 环境变量设置垃圾回收目标百分比（默认100）)
 - Use `runtime.ReadMemStats` to monitor memory usage. (使用 `runtime.ReadMemStats` 监控内存使用情况)
 
 ## Navigation
 
-← [Previous: Defer, Panic, and Recover](./07_defer-panic-recover.md) | [Back to README](../README.md) | **Next:** [Concurrency Patterns](./09_concurrency-patterns.md) →
+← [Previous: Defer, Panic, and Recover](./07_defer-panic-recover.md) | [Back to README](../README.md) | **Next:** [sync.WaitGroup](./09_sync_waitgroup.md) →
