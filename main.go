@@ -2,12 +2,15 @@ package main
 
 import "fmt"
 
-func fn(m map[int]int) {
-        m = make(map[int]int)
-}
-
 func main() {
-        var m map[int]int
-        fn(m)
-        fmt.Println(m == nil)
+    a := [3]int{1, 2, 3}
+    b := [3]int{4, 5, 6}
+
+    for i, v := range &a {
+        if i == 1 {
+            a = b
+        }
+        fmt.Println(v)
+    }
+    // 输出：1 2 3（而不是 1 2 6）
 }
