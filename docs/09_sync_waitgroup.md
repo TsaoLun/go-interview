@@ -342,4 +342,4 @@ WaitGroup 的设计展示了 Go 语言在并发原语实现上的精妙平衡：
 
 ## Navigation
 
-← [Previous: Memory Management and GC](./08_memory-gc.md) | [Back to README](../README.md) | **Next:** [Examples](./10_examples.md) →
+← [Previous: Memory Management and GC](./08_memory-gc.md) | [Back to README](../README.md) | **Next:** [sync.Cond](./10_sync_cond.md) →

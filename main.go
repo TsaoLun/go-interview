@@ -1,16 +1,44 @@
 package main
 
-import "fmt"
+import (
+	"math/rand"
+	"sync"
+	"time"
+    "log"
+)
+
+var pokemonList = []string{"Pikachu", "Charmander", "Squirtle", "Bulbasaur", "Jigglypuff"}
+var cond = sync.NewCond(&sync.Mutex{})
+var pokemon = ""
 
 func main() {
-    a := [3]int{1, 2, 3}
-    b := [3]int{4, 5, 6}
+	now := time.Now().UnixMilli()
+	// Consumer
+	go func() {
+		cond.L.Lock()
+		defer cond.L.Unlock()
 
-    for i, v := range &a {
-        if i == 1 {
-            a = b
-        }
-        fmt.Println(v)
-    }
-    // 输出：1 2 3（而不是 1 2 6）
+		// waits until Pikachu appears
+		for pokemon != "Pikachu" {
+			cond.Wait()
+		}
+		log.Printf("Caught %s, takes %d ms", pokemon, time.Now().UnixMilli()-now)
+		pokemon = ""
+	}()
+
+	// Producer
+	go func() {
+		// Every 1ms, a random Pokémon appears
+		for i := 0; i < 100; i++ {
+			time.Sleep(time.Millisecond)
+
+			cond.L.Lock()
+			pokemon = pokemonList[rand.Intn(len(pokemonList))]
+			cond.L.Unlock()
+
+			cond.Signal()
+		}
+	}()
+
+	time.Sleep(100 * time.Millisecond) // lazy wait
 }

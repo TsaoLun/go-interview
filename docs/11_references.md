@@ -13,4 +13,4 @@
 
 ## Navigation
 
-← [Previous: Examples](./10_examples.md) | [Back to README](../README.md)
+← [Previous: sync.Cond](./10_sync_cond.md) | [Back to README](../README.md)

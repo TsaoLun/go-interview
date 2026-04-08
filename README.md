@@ -15,7 +15,7 @@ This documentation is organized into individual numbered sections for focused le
 - [Defer, Panic, and Recover](./docs/07_defer-panic-recover.md) - Error handling and flow control
 - [Memory Management and GC](./docs/08_memory-gc.md) - Memory allocation and garbage collection
 - [sync.WaitGroup](./docs/09_sync_waitgroup.md) - WaitGroup synchronization and alignment issues
-- [Examples](./docs/10_examples.md) - Practical code examples and demonstrations
+- [sync.Cond](./docs/10_sync_cond.md) - Condition variable synchronization
 - [References](./docs/11_references.md) - Official documentation and learning resources
 
 ## Quick Overview
